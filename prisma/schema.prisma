@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Appointment {
+  id                                 String    @id @default(uuid())
+  phone_number                       String?
+  first_name                         String?
+  last_name                          String?
+  appointment_reason                 String?
+  appointment_status                 String?
+  requires_post_appointment_followup Boolean?
+  appointment_date                   DateTime?
+  default_outbound_language          String?
+  scheduled_outbound_intake_call     DateTime?
+  reminder_called_at                 DateTime?
+  sms_reminder_sent_at               DateTime?
+  intake_answers                     Json?
+
+  @@map("appointments")
+}
