@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const message = await client.messages.create({
       body: `Reminder for your appointment at Clearwater Ridge: ${appointmentDateTime}\n\nPlease click here to complete your intake questionnaire or to confirm or cancel/reschedule: ${appointmentLink}`,
       from: twilioPhoneNumber,
-      to: "+15199333359",
+      to: "+16476096327",
     });
 
     return NextResponse.json({
