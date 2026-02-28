@@ -25,6 +25,25 @@ CareLoop is a full-stack healthcare appointment management system built to suppo
 
 ---
 
+## Screenshots
+
+### Staff Dashboard
+![Appointments Dashboard](public/screenshots/dashboard.png)
+
+### Appointment Editor
+![Appointment Editor](public/screenshots/appointment-editor.png)
+
+### Staff Login
+![Staff Login](public/screenshots/staff-login.png)
+
+### Patient Portal — Login
+![Patient Login](public/screenshots/patient-login.png)
+
+### Patient Portal — Appointment View
+![Patient Appointment](public/screenshots/patient-appointment.png)
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
