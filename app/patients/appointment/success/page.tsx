@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export default function IntakeSuccessPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center px-4">

@@ -1,9 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import twilio from "twilio";
+import { z } from "zod";
+import { PrismaClient } from "@/app/generated/prisma/client";
+import { sendSmsSchema } from "@/lib/validation";
+import { toApiError, NotFoundError, ValidationError } from "@/lib/errors";
+import { checkRateLimit, getClientIdentifier } from "@/lib/ratelimit";
+
+const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
+  const limitResult = await checkRateLimit(`sms:${getClientIdentifier(request)}`);
+  if (!limitResult.success) {
+    return NextResponse.json(
+      { error: "Too many requests", code: "RATE_LIMITED" },
+      { status: 429 }
+    );
+  }
   try {
-    const { appointmentId } = await request.json();
+    const body = await request.json();
+    const { appointmentId } = sendSmsSchema.parse(body);
+
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+    });
+
+    if (!appointment) {
+      throw new NotFoundError("Appointment not found");
+    }
+
+    if (!appointment.phone_number) {
+      throw new ValidationError("Appointment has no phone number");
+    }
 
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -19,17 +46,23 @@ export async function POST(request: NextRequest) {
 
     const client = twilio(accountSid, authToken);
 
-    // Generate short ID (first 8 chars)
-    const shortId = appointmentId.substring(0, 8);
-    const appointmentLink = `${appUrl}/patients/appointment/${shortId}`;
-
-    // TODO: Replace with actual appointment date/time from database
-    const appointmentDateTime = "February 5, 2026 at 10:00 AM";
+    const appointmentLink = `${appUrl}/patients/appointment/${appointmentId}`;
+    const appointmentDateTime = appointment.appointment_date
+      ? new Date(appointment.appointment_date).toLocaleString("en-US", {
+          dateStyle: "long",
+          timeStyle: "short",
+        })
+      : "TBD";
 
     const message = await client.messages.create({
       body: `Reminder for your appointment at Clearwater Ridge: ${appointmentDateTime}\n\nPlease click here to complete your intake questionnaire or to confirm or cancel/reschedule: ${appointmentLink}`,
       from: twilioPhoneNumber,
-      to: "+16476096327",
+      to: appointment.phone_number,
+    });
+
+    await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { sms_reminder_sent_at: new Date() },
     });
 
     return NextResponse.json({
@@ -38,7 +71,19 @@ export async function POST(request: NextRequest) {
       link: appointmentLink,
     });
   } catch (error) {
+    if (error instanceof ValidationError || error instanceof NotFoundError) {
+      return NextResponse.json(toApiError(error), { status: error.statusCode });
+    }
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        toApiError(new ValidationError("Invalid request", error)),
+        { status: 400 }
+      );
+    }
     console.error("Error sending SMS:", error);
-    return NextResponse.json({ error: "Failed to send SMS" }, { status: 500 });
+    return NextResponse.json(
+      toApiError(error),
+      { status: 500 }
+    );
   }
 }

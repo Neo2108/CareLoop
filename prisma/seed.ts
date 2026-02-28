@@ -1,5 +1,6 @@
 import { config } from "dotenv";
 import { PrismaClient } from "../app/generated/prisma/client";
+import bcrypt from "bcryptjs";
 
 // Load environment variables from .env file
 config();
@@ -7,6 +8,23 @@ config();
 const prisma = new PrismaClient();
 
 async function main() {
+  // Create default staff user if not exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email: "staff@careloop.com" },
+  });
+  if (!existingUser) {
+    const hashedPassword = bcrypt.hashSync("password123", 10);
+    await prisma.user.create({
+      data: {
+        email: "staff@careloop.com",
+        name: "Staff User",
+        password: hashedPassword,
+      },
+    });
+    console.log("Default staff user created: staff@careloop.com / password123");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const appointments: any[] = [
     {
       phone_number: "+12223334444",
@@ -150,13 +168,15 @@ async function main() {
     },
   ];
 
-  for (const apt of appointments) {
-    await prisma.appointment.create({
-      data: apt,
-    });
+  const existingCount = await prisma.appointment.count();
+  if (existingCount === 0) {
+    await prisma.appointment.createMany({ data: appointments });
+    console.log(`Seeded ${appointments.length} appointments.`);
+  } else {
+    console.log(`Skipped seeding appointments (${existingCount} already exist).`);
   }
 
-  console.log("Seed data inserted successfully.");
+  console.log("Seed complete.");
 }
 
 main()

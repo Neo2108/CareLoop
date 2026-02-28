@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Careloop - Appointments Dashboard
 
-## Getting Started
+A healthcare appointment management system designed to support Indigenous communities with multi-language reminder calls, SMS notifications, and patient intake questionnaires.
 
-First, run the development server:
+## Purpose
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Careloop helps healthcare staff manage appointments by:
+
+- Tracking appointment status (booked, confirmed, cancelled, etc.)
+- Sending SMS reminders with links to patient intake forms
+- Triggering AI-powered outbound reminder calls (ElevenLabs)
+- Supporting multiple languages (English, French, Ojibwe, Cree, Inuktitut, Mi'kmaq)
+- Collecting pre-appointment intake questionnaires (GAD-7 style)
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Database:** SQLite with Prisma ORM
+- **Auth:** NextAuth.js v5 (credentials)
+- **Styling:** Tailwind CSS 4
+- **SMS:** Twilio
+- **AI Calls:** ElevenLabs Conversational AI
+
+## Prerequisites
+
+- Node.js 20+
+- npm or pnpm
+
+## Setup
+
+1. **Clone and install:**
+
+   ```bash
+   git clone <repo-url>
+   cd WDSSpark2026-main
+   npm install
+   ```
+
+2. **Configure environment:**
+
+   Copy `.env.example` to `.env` and fill in the required values:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   | Variable           | Required | Description                          |
+   | ------------------ | -------- | ------------------------------------ |
+   | `DATABASE_URL`     | Yes      | SQLite path, e.g. `file:./prisma/dev.db` |
+   | `NEXTAUTH_SECRET`  | Yes      | Generate with `openssl rand -base64 32`   |
+   | `TWILIO_ACCOUNT_SID` | No    | For SMS reminders                    |
+   | `TWILIO_AUTH_TOKEN`  | No    | For SMS reminders                    |
+   | `TWILIO_PHONE_NUMBER` | No   | Sender phone number                  |
+   | `ELEVENLABS_API_KEY` | No    | For AI reminder calls                |
+   | `ELEVENLABS_AGENT_ID` | No   | ElevenLabs agent ID (required for calls) |
+   | `ELEVENLABS_PHONE_NUMBER_ID` | No | ElevenLabs phone number ID (required for calls) |
+   | `APP_URL`          | No       | Base URL for links (default: http://localhost:3000) |
+   | `UPSTASH_REDIS_REST_URL` | No | For API rate limiting (Upstash Redis) |
+   | `UPSTASH_REDIS_REST_TOKEN` | No | For API rate limiting (Upstash Redis) |
+
+3. **Initialize database:**
+
+   ```bash
+   npx prisma db push
+   npx prisma db seed
+   ```
+
+4. **Run development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000).
+
+## Demo Credentials
+
+- **Email:** staff@careloop.com  
+- **Password:** password123
+
+## Scripts
+
+| Command        | Description                    |
+| -------------- | ------------------------------ |
+| `npm run dev`  | Start development server       |
+| `npm run build`| Production build               |
+| `npm run start`| Start production server        |
+| `npm run lint` | Run ESLint                     |
+| `npm run test` | Run Vitest tests               |
+
+## Deployment (Vercel)
+
+1. **Connect your repo** to [Vercel](https://vercel.com) and import this project.
+2. **Database:** For production, use **Vercel Postgres** or **Neon** instead of SQLite (SQLite is not suitable for serverless). Set `DATABASE_URL` to your Postgres connection string.
+3. **Environment variables:** Add all required vars in Vercel Project Settings → Environment Variables:
+   - `DATABASE_URL` (Postgres)
+   - `NEXTAUTH_SECRET`
+   - `AUTH_URL` (your deployment URL, e.g. `https://your-app.vercel.app`) — required for NextAuth in production
+   - `APP_URL` (same as `AUTH_URL` for patient links)
+   - Optional: Twilio, ElevenLabs, Upstash Redis
+4. **Post-deploy:** Run `npx prisma db push` against your production DB, then `npx prisma db seed` to create the default staff user.
+
+**Demo:** [Add your live demo URL here after deployment]
+
+## Project Structure
+
+```
+├── app/
+│   ├── api/           # API routes (send-sms, initiate-call, trigger-reminder-calls)
+│   ├── appointments/  # Staff appointment editor
+│   ├── patients/      # Patient-facing intake and confirmation
+│   └── actions.ts     # Server actions
+├── components/        # React components
+├── lib/               # Validation, errors, utilities
+├── prisma/            # Schema, migrations, seed
+└── auth.ts            # NextAuth configuration
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## License
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

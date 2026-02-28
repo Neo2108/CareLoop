@@ -1,13 +1,15 @@
 "use client";
 
-import type { AppointmentModel } from "@/app/generated/prisma/models/Appointment";
+import type {
+    AppointmentModel,
+    AppointmentUpdateInput,
+} from "@/app/generated/prisma/models/Appointment";
 import { useState } from "react";
 import { updateAppointment } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import {
     PhoneIcon,
     ClipboardDocumentListIcon,
-    PhoneArrowUpRightIcon,
     DocumentCheckIcon,
     ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
@@ -25,7 +27,6 @@ export default function AppointmentEditor({
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
-    const [initiatingCall, setInitiatingCall] = useState(false);
     const [fetchingIntake, setFetchingIntake] = useState(false);
     const [sendingSMS, setSendingSMS] = useState(false);
     const [preferredCallTime, setPreferredCallTime] =
@@ -131,48 +132,6 @@ export default function AppointmentEditor({
         }
     };
 
-    const handleInitiateCall = async () => {
-        setError(null);
-        setSuccess(null);
-        setInitiatingCall(true);
-
-        try {
-            const response = await fetch("/api/initiate-call", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    to_number: formData.phone_number || btoa("û^u÷Ý÷ß~}"),
-                }),
-            });
-
-            if (response.ok) {
-                const currentTimestamp = new Date();
-
-                // Update appointment with current timestamp
-                await updateAppointment(appointment.id, {
-                    reminder_called_at: currentTimestamp,
-                });
-
-                // Update local state immediately
-                setFormData((prev: AppointmentModel) => ({
-                    ...prev,
-                    reminder_called_at: currentTimestamp,
-                }));
-
-                setSuccess("Call initializing...");
-            } else {
-                setError("Error starting call");
-            }
-        } catch (e) {
-            setError("Error starting call");
-            console.error(e);
-        } finally {
-            setInitiatingCall(false);
-        }
-    };
-
     const handleFetchIntakeResponses = async () => {
         setFetchingIntake(true);
 
@@ -188,14 +147,17 @@ export default function AppointmentEditor({
                 },
             ];
 
+            const parsedAnswers = JSON.parse(
+                JSON.stringify(intakeData)
+            ) as AppointmentModel["intake_answers"];
             await updateAppointment(appointment.id, {
-                intake_answers: intakeData as any,
+                intake_answers: parsedAnswers as AppointmentUpdateInput["intake_answers"],
             });
 
             // Update local state immediately
             setFormData((prev: AppointmentModel) => ({
                 ...prev,
-                intake_answers: intakeData as any,
+                intake_answers: parsedAnswers,
             }));
         } catch (e) {
             setError("Failed to fetch intake responses");
@@ -442,7 +404,7 @@ export default function AppointmentEditor({
                         <div>
                             <label className="block text-sm font-medium mb-1">
                                 <a
-                                    href={`/patients/appointment/${appointment.id.slice(0, 8)}`}
+                                    href={`/patients/appointment/${appointment.id}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-blue-600 dark:text-blue-400 hover:underline"
@@ -461,14 +423,6 @@ export default function AppointmentEditor({
                 </div>
 
                 <div className="flex gap-3 mb-4">
-                    <button
-                        onClick={handleInitiateCall}
-                        disabled={initiatingCall}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <PhoneArrowUpRightIcon className="w-5 h-5" />
-                        {initiatingCall ? "Initiating..." : "Initiate Reminder Call"}
-                    </button>
                     <button
                         onClick={handleSendSMS}
                         disabled={sendingSMS}
@@ -539,8 +493,8 @@ export default function AppointmentEditor({
                         The questionnaire selection determines which intake questions are
                         asked during the initial contact with the patient. If no
                         questionnaire is selected, no intake questions will be asked. The
-                        answers provided are stored and displayed in the "Intake Answers"
-                        section.
+                        answers provided are stored and displayed in the &quot;Intake
+                        Answers&quot; section.
                     </p>
                 </div>
 
@@ -552,8 +506,8 @@ export default function AppointmentEditor({
                         </h3>
                     </div>
                     <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
-                        When "Requires Post-Appointment Follow-up" is checked, the system
-                        will automatically call the patient at the selected preferred time
+                        When &quot;Requires Post-Appointment Follow-up&quot; is checked, the
+                        system will automatically call the patient at the selected preferred time
                         to complete a follow-up questionnaire based on their appointment
                         reason.
                     </p>

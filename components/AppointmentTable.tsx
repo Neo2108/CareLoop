@@ -144,30 +144,31 @@ export default function AppointmentTable({
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row justify-between items-end bg-white dark:bg-zinc-900 rounded-lg shadow p-6 gap-4">
-        {/* Left Side: Patient Name & Status */}
-        <div className="flex gap-4 w-full md:w-auto">
-          <div className="w-full md:w-64">
-            <label className="block text-sm font-medium mb-1">
+      <div className="bg-white dark:bg-zinc-900 rounded-lg shadow p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
               Patient Name
             </label>
             <input
               type="text"
               value={patientName}
               onChange={(e) => setPatientName(e.target.value)}
-              className="border rounded p-2 text-black w-full"
+              className="w-full border border-gray-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Search name..."
             />
           </div>
 
-          <div className="w-full md:w-40">
-            <label className="block text-sm font-medium mb-1">Status</label>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
+              Status
+            </label>
             <select
-              className="border rounded p-2 text-black w-full"
+              className="w-full border border-gray-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
             >
-              <option value="All">All</option>
+              <option value="All">All statuses</option>
               <option value="booked">Booked</option>
               <option value="unconfirmed">Unconfirmed</option>
               <option value="confirmed">Confirmed</option>
@@ -175,40 +176,35 @@ export default function AppointmentTable({
               <option value="unreachable">Unreachable</option>
             </select>
           </div>
-        </div>
 
-        {/* Right Side: Date Range Filter */}
-        <div className="flex items-center gap-4 w-full md:w-auto justify-end">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-[-20px]">
-            Appointment Date
-          </span>
           <div>
-            <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-              From
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
+              Date From
             </label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border rounded p-2 text-black text-sm"
+              className="w-full border border-gray-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+
           <div>
-            <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-              To
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">
+              Date To
             </label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border rounded p-2 text-black text-sm"
+              className="w-full border border-gray-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-zinc-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
       </div>
 
-      <div className="border rounded-lg overflow-hidden shadow">
-        <table className="w-full text-sm text-left">
+      <div className="border rounded-lg overflow-x-auto shadow">
+        <table className="min-w-full text-sm text-left">
           <thead className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 uppercase font-medium">
             <tr>
               <th className="px-4 py-3 w-12">
@@ -227,7 +223,7 @@ export default function AppointmentTable({
               <th className="px-6 py-3">Appointment Reason</th>
               <th className="px-6 py-3">Appointment Date</th>
               <th className="px-6 py-3">Reminder Called At</th>
-              <th className="px-6 py-3 text-right">Action</th>
+              <th className="px-6 py-3 text-right sticky right-0 bg-gray-100 dark:bg-gray-800">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -284,10 +280,10 @@ export default function AppointmentTable({
                   <td className="px-6 py-4">
                     {formatDate(apt.reminder_called_at)}
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right sticky right-0 bg-white dark:bg-zinc-900">
                     <Link
                       href={`/appointments/${apt.id}`}
-                      className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-medium"
+                      className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-medium whitespace-nowrap"
                     >
                       View
                     </Link>
