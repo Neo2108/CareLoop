@@ -31,15 +31,13 @@ CareLoop is a full-stack healthcare appointment management system built to suppo
 |---|---|
 | Framework | Next.js 16 (App Router, Server Actions) |
 | Language | TypeScript |
-| Database | SQLite (dev) / PostgreSQL (prod) via Prisma ORM |
+| Database | SQLite via Prisma ORM |
 | Auth | NextAuth.js v5 — JWT credentials provider |
 | Styling | Tailwind CSS v4 |
 | SMS | Twilio |
 | Validation | Zod |
 | Testing | Vitest + React Testing Library |
 | CI/CD | GitHub Actions |
-| Deployment | Vercel |
-
 ---
 
 ## Prerequisites
@@ -88,7 +86,7 @@ Enter any patient's name and appointment date from the dashboard (e.g. *John Doe
 
 | Variable | Required | Description |
 |---|---|---|
-| `DATABASE_URL` | Yes | SQLite: `file:./prisma/dev.db` · Postgres: `postgresql://...` |
+| `DATABASE_URL` | Yes | `file:./prisma/dev.db` (SQLite) |
 | `NEXTAUTH_SECRET` | Yes | Random secret — generate with `openssl rand -base64 32` |
 | `TWILIO_ACCOUNT_SID` | Optional | Twilio Account SID for SMS |
 | `TWILIO_AUTH_TOKEN` | Optional | Twilio Auth Token |
@@ -142,15 +140,6 @@ npm run lint       # ESLint
 npm run test       # Run Vitest tests
 npm run test:watch # Tests in watch mode
 ```
-
----
-
-## Deployment (Vercel)
-
-1. Connect the GitHub repo to a new Vercel project
-2. Add a Postgres database (Vercel Postgres or Neon)
-3. Set all required environment variables in the Vercel dashboard
-4. On first deploy, run migrations: `npx prisma migrate deploy`
 
 ---
 
