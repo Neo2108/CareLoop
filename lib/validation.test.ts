@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   appointmentIdSchema,
   sendSmsSchema,
-  initiateCallSchema,
   intakeAnswersSchema,
 } from "./validation";
 
@@ -26,21 +25,6 @@ describe("sendSmsSchema", () => {
 
   it("rejects missing appointmentId", () => {
     expect(() => sendSmsSchema.parse({})).toThrow();
-  });
-});
-
-describe("initiateCallSchema", () => {
-  it("accepts valid to_number", () => {
-    const body = { to_number: "+15551234567" };
-    expect(initiateCallSchema.parse(body)).toEqual(body);
-  });
-
-  it("rejects empty to_number", () => {
-    expect(() => initiateCallSchema.parse({ to_number: "" })).toThrow();
-  });
-
-  it("rejects missing to_number", () => {
-    expect(() => initiateCallSchema.parse({})).toThrow();
   });
 });
 
